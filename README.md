@@ -11,3 +11,5 @@ The outputs of script 4 are evaluation of performance with different parameter c
 with the estimated propensity of each taxon to occur at each sampled assemblage, "Xmat" files showing the strength of
 the association of each sampled assemblage to the identified fishery types (termed V1-V4 in the manuscript), and "Ymat"
 files showing the association of each taxon with those same fishery types. 
+
+Any questions? Please get in touch with abigail.parker@helsinki.fi
