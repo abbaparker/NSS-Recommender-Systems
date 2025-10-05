@@ -39,10 +39,10 @@ do_auc_cv <- TRUE #includes cross validation
 rec_mat <- TRUE   # saves recommender score values
 
 #parameters-- these values are my initial suggestions based on some trials
-alpha_now <- 5  #higher = more confidence in presences vs. absences
-n_features_now <- 10   #how many topics in inner matrix
-lambda_now <- 18  #regularization, higher links co-occurring taxa more strongly in predictions
-cik_now <- 10  #iternations of matrix factorization (leave at 10 here)
+alpha <- 5  #higher = more confidence in presences vs. absences
+n_features <- 10   #how many topics in inner matrix
+lambda <- 18  #regularization, higher links co-occurring taxa more strongly in predictions
+cik <- 10  #iternations of matrix factorization (leave at 10 here)
 
 n_remove_test <- 10   #number of occurrences to remove for cross-validation tests
 cik_cv <- 10  #how many iterations of cross-validation (lower for speed)
@@ -53,11 +53,11 @@ setwd("")
 
 results_all <- c()
  # In this case, I loop across parameters for alpha, n_features, and lambda 
-for (alpha_now in c(2, 5, 10, 15, 20, 25, 30, 35)){  #can choose just one value to start
-  print(paste0("alpha =", alpha_now))
-  for (n_features_now in c(3,4,5,6,8,10, 12)){
-    for (lambda_now  in c(15, 18, 20, 25, 30, 40)){   #all of these parameters can be varied further
-      print(lambda_now)
+for (alpha in c(35)){  #can choose just one value to start
+  print(paste0("alpha =", alpha))
+  for (n_features in c(3,4,5,6,8,10, 12)){
+    for (lambda  in c(15, 18, 20, 25, 30, 40)){   #all of these parameters can be varied further
+      print(lambda)
       data_now <- as.matrix(data_all)  #data_now matrix -- check this is only taxon columns
       rownames(data_now) <- paste(rownames(data_all) )
       input_marginalT <- colSums(data_now) #sum of each species' occurrences
@@ -101,19 +101,19 @@ for (alpha_now in c(2, 5, 10, 15, 20, 25, 30, 35)){  #can choose just one value 
         if (rec_mat){  #saves inner matrices
           rownames(X) <- rownames(data_all)
           rownames(Y) <- colnames(data_all) 
-          write.csv(X, paste0("Xmat",alpha_now,"_", n_features_now, "_",lambda_now, "looprun.csv"))
-          write.csv(Y, paste0("Ymat",alpha_now, "_",n_features_now, "_",lambda_now, "looprun.csv"))
+          write.csv(X, paste0("Xmat",alpha,"_", n_features, "_",lambda, "looprun.csv"))
+          write.csv(Y, paste0("Ymat",alpha, "_",n_features, "_",lambda, "looprun.csv"))
         }
         return(rec)
       }
       
       #full fit on train data
-      REC <- round(factorize(data_now,n_features_now,alpha_now,lambda_now,cik_now,TRUE),digits = 2)
+      REC <- round(factorize(data_now,n_features,alpha,lambda,cik,TRUE),digits = 2)
       colnames(REC) <- colnames(data_all)
       rownames(REC) <- rownames(data_all) 
       REC_all <- REC
       
-      write.csv(REC_all, paste0("REC_",alpha_now, "_", n_features_now, "_",lambda_now, "looprun.csv"))
+      write.csv(REC_all, paste0("REC_",alpha, "_", n_features, "_",lambda, "looprun.csv"))
       
       
       # ROC on training data, defined true positives and negatives
@@ -132,7 +132,7 @@ for (alpha_now in c(2, 5, 10, 15, 20, 25, 30, 35)){  #can choose just one value 
         
         data_now_test <- data_now
         data_now_test[ind_true_remove] <- 0  #for given true pos, make observation absence
-        REC_cv <- round(factorize(data_now_test,n_features_now,alpha_now,lambda_now,cik_now,FALSE),digits = 2) #run RS
+        REC_cv <- round(factorize(data_now_test,n_features,alpha,lambda,cik,FALSE),digits = 2) #run RS
         res_cv_raw <- rbind(res_cv_raw,c(mean(REC_cv[ind_true_remove]),mean(REC_cv[ind_false_remove])))
         
         if (do_auc_cv){
@@ -178,11 +178,11 @@ for (alpha_now in c(2, 5, 10, 15, 20, 25, 30, 35)){  #can choose just one value 
       
       
       #Summary of results-- compare parameter combinations for performance in cross-validation
-      results_all <- rbind(results_all,cbind(alpha_now,n_features_now,lambda_now,cik_now,n_remove_test,cik_cv,
+      results_all <- rbind(results_all,cbind(alpha,n_features,lambda,cik,n_remove_test,cik_cv,
                                              cv_mean_predictions[1],cv_sd_predictions[1],cv_mean_predictions[2],
                                              cv_sd_predictions[2],cv_auc,cv_auc_sd, 
-                                             mean_predictions_now,
-                                             mean_data_now, mean_predictions_pos, mean_predictions_neg,
+                                             mean_predictions,
+                                             mean_data, mean_predictions_pos, mean_predictions_neg,
                                              mean_error_animals,mean_error_localities,
                                              correlation_everything,mean_absolute_error, taxa_marginal,
                                              site_marginal))
