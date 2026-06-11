@@ -1,5 +1,5 @@
 Code accompanying the manuscript "2000-year fish bone record reveals transition to commercial fisheries 
-during climatic change over the past two millennia" (Buss et al. 2025).
+during climatic change over the past two millennia" (Buss et al. 2026).
 
 Contents of R scripts:
 1) Input NSS-DB data, save as assemblage (row)/taxon (column) matrices indicating databased occurrences
