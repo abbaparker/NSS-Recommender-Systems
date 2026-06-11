@@ -17,8 +17,8 @@ ps/t
 # If using specific time bins, define here
 sitefilt <- read.csv("Site_Metadata_SpeciesLevel_noCEE_190925.csv")
 bins <- unique(sitefilt$time_bins2)
-bins
-thisbin <- sitefilt[sitefilt$time_bins2 %in% bins[6],]    #8 bins
+bins #8 bins
+thisbin <- sitefilt[sitefilt$time_bins2 %in% bins[6],]    #select one bin at a time for run (optional)
 data_all_bin <- data_all %>% filter(rownames(data_all) %in% thisbin$DB_Assemblage_ID)
 occ_nisp_bin <- occ_nisp %>% filter(rownames(occ_nisp) %in% thisbin$DB_Assemblage_ID)
 
