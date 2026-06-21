@@ -1,5 +1,6 @@
-#set working directory where NSS excel file is saved
+# set working directory where NSS excel file is saved
 setwd("")
+# load libraries
 library(tidyverse)
 library(readxl)
 library(corrplot)
@@ -11,10 +12,10 @@ colnames(d1)
 # counts per region
 d1 %>% dplyr::count(Region)
 
-#For this run, remove Poland and Estonia (different datasets)
+#For this run, remove Poland and Estonia 
 d2 <- d1 %>% filter(!(Region=="Central & Eastern Europe"))
 
-#Species with _
+#Species names with _ between binomial, for consistency
 d1$GBIF_species <- gsub(" ", "_", d1$GBIF_species)
 
 # Create List of Site Metadata
@@ -25,18 +26,18 @@ assemblage <- d1 %>% dplyr::select("DB_Assemblage_ID", "Site_name", "Settlement_
                             "start_date_CE_final_num", "end_date_CE_final_num", "Earliest_relevant_urban_date_in_NSS",    
                             "Decimal_Latitude", "Decimal_Longitude","Time.mid") 
 
+#Save site metadata for later use, this version excluding Poland Estonia
 fassemblage <-  unique(assemblage)  
-write.csv(fassemblage, "Site_Metadata_FamilyLevel_noCEE_190925.csv")
+write.csv(fassemblage, "Site_Metadata_FamilyLevel_noCEE_190925.csv") 
 assemblage <-  unique(assemblage)
 write.csv(assemblage, "Site_Metadata_SpeciesLevel_noCEE_190925.csv")
-# this will vary for species data (different sites excluded as top/bottom 2.5% of counts)
-    # so re-run
+# Species data differs from family because different sites excluded as top/bottom 2.5% of counts
 
-sitec <- assemblage %>% count(DB_Assemblage_ID) #Check-- is each assemblage ID unique?
+# sitec <- assemblage %>% count(DB_Assemblage_ID) #optional check-- is each assemblage ID unique?
 assemblage %>% count(DB_sieved) #how many sieved assemblages
-assemblage %>% count(time_bins2) # coutn by time bin
+assemblage %>% count(time_bins2) # count by time bin
 assemblage %>% count(Historic_Urban_Centre) # count urban/nonurban assembalges
-checkf <- assemblage %>% filter(Historic_Urban_Centre=="NA") #what is missing this coding?
+#checkf <- assemblage %>% filter(Historic_Urban_Centre=="NA") # optional check-- what is missing this coding?
 #write.csv(checkf,"NAurbancenters.csv")
 
 # Create spreadsheet of taxon metadata
@@ -64,7 +65,7 @@ dsp <- d1 %>% dplyr::select(GBIF_genus, GBIF_family, GBIF_order, GBIF_species)
 occ_count <- dsp %>% dplyr::count(GBIF_species)  
 taxa3plus <- occ_count %>% filter(n>2)  # species with 3 or more occurrences
 taxa <- taxa3plus$GBIF_species
-taxa #113 species, 116 with CEE
+taxa # check list of taxa to use
 
 #save species trait data
 data_taxa_all <- d1 %>% dplyr::select("GBIF_species", "GBIF_genus", "GBIF_family",
@@ -77,16 +78,16 @@ write.csv(data_species, "TraitData_Species_NSS_19Sep25.csv")
 
 # Build site/occurrence matrices ####
 
-#choose one of family or species level, read above saved files 
+#choose one of family or species level, using above saved files 
 straits <- read.csv("TraitData_Species_NSS_19Sep25.csv")
-taxa <- taxa  #species
-#taxa <- ftaxa #families
+taxa <- taxa  # for species
+#taxa <- ftaxa # for families
 
 # select site names
 sites <- read.csv("Site_Metadata_SpeciesLevel_noCEE_190925.csv", row.names = 1) #or SpeciesLevel
 site <- unique(sites$DB_Assemblage_ID) 
 
-#make NISP numeric
+# make NISP numeric
 d1$NISP <- as.numeric(d1$NISP)
 
 #Build matrices
@@ -97,7 +98,7 @@ colnames(Nisp_matrix) <- taxa
 rownames(Occ_matrix) <- site
 rownames(Nisp_matrix) <- site
 
-# Total matrix for all unique taxon names
+# Build total occurrence matrix for all unique taxon names and sites
 
 # For species run
 for (q in 1:nrow(sites)){  #row for each locality
