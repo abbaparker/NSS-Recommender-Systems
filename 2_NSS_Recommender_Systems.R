@@ -17,8 +17,8 @@ ps/t
 # If using specific time bins, define here
 sitefilt <- read.csv("Site_Metadata_SpeciesLevel_noCEE_190925.csv")
 bins <- unique(sitefilt$time_bins2)
-bins #8 bins
-thisbin <- sitefilt[sitefilt$time_bins2 %in% bins[6],]    #select one bin at a time for run (optional)
+bins #8 time bins
+thisbin <- sitefilt[sitefilt$time_bins2 %in% bins[6],]    #select one bin at a time for run (optional; repeat for all bins)
 data_all_bin <- data_all %>% filter(rownames(data_all) %in% thisbin$DB_Assemblage_ID)
 occ_nisp_bin <- occ_nisp %>% filter(rownames(occ_nisp) %in% thisbin$DB_Assemblage_ID)
 
@@ -39,10 +39,10 @@ do_auc_cv <- TRUE #includes cross validation
 rec_mat <- TRUE   # saves recommender score values
 
 #parameters-- these values are my initial suggestions based on some trials
-alpha <- 5  #higher = more confidence in presences vs. absences
-n_features <- 10   #how many topics in inner matrix
-lambda <- 18  #regularization, higher links co-occurring taxa more strongly in predictions
-cik <- 10  #iternations of matrix factorization (leave at 10 here)
+alpha <- 10  #higher = more confidence in presences vs. absences
+n_features <- 6   #how many topics in inner matrix
+lambda <- 30  #regularization, higher links co-occurring taxa more strongly in predictions
+cik <- 10  #iterations of matrix factorization (held constant at 10 here)
 
 n_remove_test <- 10   #number of occurrences to remove for cross-validation tests
 cik_cv <- 10  #how many iterations of cross-validation (lower for speed)
@@ -53,7 +53,7 @@ setwd("")
 
 results_all <- c()
  # In this case, I loop across parameters for alpha, n_features, and lambda 
-for (alpha in c(35)){  #can choose just one value to start
+for (alpha in c(5, 10, 15, 20, 25, 30, 35)){  #can choose just one value to start
   print(paste0("alpha =", alpha))
   for (n_features in c(3,4,5,6,8,10, 12)){
     for (lambda  in c(15, 18, 20, 25, 30, 40)){   #all of these parameters can be varied further
@@ -120,7 +120,7 @@ for (alpha in c(35)){  #can choose just one value to start
       ind_sieve <- which(!is.na(occ_nisp))  #sieved sites with NISP fraction
       occ_sieve <- as.matrix(occ_nisp)
                     
-      #cross-validation
+      # Cross-validation
       res_cv_raw <- c()
       res_cv_auc <- c()
       
@@ -146,7 +146,7 @@ for (alpha in c(35)){  #can choose just one value to start
         }else{
           auc_test <- 0
         }
-        res_cv_auc <- c(res_cv_auc,auc_test)  # add auc score for this iteration to rest
+        res_cv_auc <- c(res_cv_auc,auc_test)  # add auc score for this iteration to vector
       }
       cv_mean_predictions <- round(apply(res_cv_raw,2,mean),digits = 3)
       cv_sd_predictions <- round(apply(res_cv_raw,2,sd),digits = 3)
